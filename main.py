@@ -3,6 +3,14 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from sqlalchemy.orm import sessionmaker
 from song_database_setup import engine, Song
 
+import re
+
+ALLOWED_PATTERN = re.compile(r"^[1-9a-zA-Zа-яА-Я _-]+$")
+
+def is_valid_song_text(text: str) -> bool:
+    return bool(ALLOWED_PATTERN.fullmatch(text))
+
+
 TOKEN = "8369625560:AAGuHIkFsmPzj6wkfRjEZqn7OVXDuAHi2cY"
 CHANNEL_ID = "-1003394233404"  # ID of the target Telegram channel to receive new song submissions
 
@@ -23,7 +31,18 @@ async def song(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Использование: <code>/song [автор и название песни]</code>", parse_mode="HTML")
         return
 
-    query = " ".join(context.args)
+    query = " ".join(context.args).strip()
+
+    if not is_valid_song_text(query):
+        await update.message.reply_text(
+            "❌ Недопустимые символы.\n\n"
+            "Разрешены только:\n"
+            "• буквы (a–z, а–я)\n"
+            "• цифры (1–9)\n"
+            "• пробел\n"
+            "• символы - _"
+        )
+        return
 
     # Prepare DB session
     SessionLocal = sessionmaker(bind=engine)
