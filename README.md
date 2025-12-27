@@ -13,4 +13,4 @@ Requirements:
 - python-telegram-bot
 
 ---
-<sub>All sensitive info is now not refreshed, so don't worry :)</sub>
+<sub>All sensitive info is now refreshed, so don't worry :)</sub>
